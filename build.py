@@ -69,5 +69,5 @@ os.rename('build/src/main/java/com/shaderunner/user', 'build/src/main/java/com/s
 
 os.chdir('build')
 call(['mvn', 'package'])
-call(['adb', '-s', '0514713800008105D97B', 'install', '-r', 'target/%s.apk' % sname])
-call(['adb', '-s', '0514713800008105D97B', 'shell', 'am', 'start', '-n', 'com.shaderunner.%s/com.shaderunner.%s.MainActivity' % (username, username)])
+call(['adb', 'install', '-r', 'target/%s.apk' % sname])
+call(['adb', 'shell', 'am', 'start', '-n', 'com.shaderunner.%s/com.shaderunner.%s.MainActivity' % (username, username)])
