@@ -1,4 +1,5 @@
 package com.shaderunner.%USER%;
+import android.content.Context;
 import android.opengl.GLSurfaceView;
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.egl.EGLConfig;
@@ -20,13 +21,19 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
   boolean success;
   FloatBuffer vertexBuffer;
   long start;
+  Context context;
   static float squareCoords[] = {-1.0f, -1.0f,   1.0f, -1.0f,    -1.0f,  1.0f,     1.0f, -1.0f,    1.0f,  1.0f,    -1.0f,  1.0f}; // top right
-  public ShaderRenderer(String _shader) {
+
+%CHANNELS%
+
+  public ShaderRenderer(Context _context, String _shader) {
     shader = _shader;
+    context = _context;
   }
 
   public void onSurfaceCreated(GL10 unused, EGLConfig config) {
     success = compileShader();
+%CHANNELINIT%
 
     ByteBuffer bb = ByteBuffer.allocateDirect(squareCoords.length * 4);
     bb.order(ByteOrder.nativeOrder());
@@ -94,6 +101,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
     GLES20.glVertexAttribPointer(pos, 2,
                                  GLES20.GL_FLOAT, false,
                                  0, vertexBuffer);
+
+
+%CHANNELUPDATE%
+
     GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
     GLES20.glDisableVertexAttribArray(pos);
   }

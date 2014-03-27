@@ -16,7 +16,7 @@ public class MainActivity extends Activity {
     GLSurfaceView surface = new GLSurfaceView(this);
     surface.setEGLContextClientVersion(2);
 
-    GLSurfaceView.Renderer renderer = new ShaderRenderer(getShader());
+    GLSurfaceView.Renderer renderer = new ShaderRenderer(this, getShader());
     surface.setRenderer(renderer);
     
     setContentView(surface);

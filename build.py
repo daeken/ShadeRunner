@@ -28,6 +28,7 @@ if username[0] not in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_':
 	username = '_' + username
 username = re.sub(r'[^A-Za-z0-9_]', '_', username)
 sname = re.sub(r'[^A-Za-z0-9_]', '_', info['name'])
+username += '_' + sname
 
 try:
 	shutil.rmtree('build')
@@ -35,10 +36,26 @@ except:
 	pass
 shutil.copytree('template', 'build')
 
+def channel(elem, src):
+	src = file(src, 'r').read()
+	with file('build/src/main/java/com/shaderunner/user/Channel%i.java' % elem['channel'], 'w') as fp:
+		src = src.replace('%USER%', username)
+		src = src.replace('%CHANNEL%', str(elem['channel']))
+		fp.write(src)
+	channels.append((
+		'Channel%i channel%i;' % (elem['channel'], elem['channel']), 
+		'channel%i = new Channel%i(context, program);' % (elem['channel'], elem['channel']), 
+		'channel%i.Update();' % elem['channel']
+	))
+
+channels = []
 for elem in render['inputs']:
 	print elem
 	if elem['ctype'] == 'texture':
 		boilerplate += 'uniform sampler2D iChannel%i;\n' % elem['channel']
+		r = requests.get('https://shadertoy.com' + elem['src'])
+		file('build/res/drawable/channel%i.%s' % (elem['channel'], elem['src'].split('.')[-1]), 'wb').write(r.content)
+		channel(elem, 'Texture2DChannel.java')
 	elif elem['ctype'] == 'music':
 		boilerplate += 'uniform sampler2D iChannel%i;\n' % elem['channel']
 	elif elem['ctype'] == 'cubemap':
@@ -58,6 +75,9 @@ def rewrite(fn):
 	contents = contents.replace('%USER%', username)
 	contents = contents.replace('%NAME%', info['name'])
 	contents = contents.replace('%SNAME%', sname)
+	contents = contents.replace('%CHANNELS%', '\n'.join('  ' + channel[0] for channel in channels))
+	contents = contents.replace('%CHANNELINIT%', '\n'.join('    ' + channel[1] for channel in channels))
+	contents = contents.replace('%CHANNELUPDATE%', '\n'.join('    ' + channel[2] for channel in channels))
 	file(fn, 'w').write(contents)
 
 rewrite('build/pom.xml')
